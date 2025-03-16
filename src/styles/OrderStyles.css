@@ -1,0 +1,79 @@
+/* Silk Road Merchant-themed Order Management Styles */
+
+/* Base variables */
+:root {
+  --merchant-bg: #f7f3eb;
+  --merchant-dark: #604838;
+  --merchant-medium: #9c7a54;
+  --merchant-light: #d5bc91;
+  --merchant-accent: #c17f28;
+  --merchant-text: #2c2517;
+  --merchant-text-light: #544936;
+  --merchant-text-faded: #7a6a53;
+  
+  --status-pending: #c87f0a;
+  --status-processing: #7a6940;
+  --status-shipped: #3f7c5b;
+  --status-delivered: #41693f;
+  --status-cancelled: #b25050;
+  
+  --merchant-shadow: 0 8px 15px rgba(80, 70, 60, 0.1);
+  --merchant-pattern: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20.5V18H0v-2h20v-2.5l3 3-3 3zM40 15V0h-2v15h-2.5l3 3 3-3H40z' fill='%239C7A54' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+/* Dashboard layout */
+.merchant-dashboard {
+  display: flex;
+  min-height: calc(100vh - 80px);
+  position: relative;
+  background-color: var(--merchant-bg);
+  background-image: var(--merchant-pattern);
+  color: var(--merchant-text);
+  font-family: 'Outfit', 'Serif';
+  padding: 0;
+}
+
+.merchant-column-decorations {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  width: 80px;
+  background-color: rgba(156, 122, 84, 0.15);
+}
+
+.merchant-column-decorations .column {
+  height: 80px;
+  width: 20px;
+  background: linear-gradient(to bottom, var(--merchant-medium), var(--merchant-light));
+  border-radius: 10px;
+  margin: 10px 0;
+}
+
+.merchant-column-decorations .symbol {
+  font-size: 28px;
+  margin: 20px 0;
+  color: var(--merchant-dark);
+  opacity: 0.6;
+}
+
+.merchant-content {
+  flex: 1;
+  padding: 40px 30px;
+  position: relative;
+  overflow-y: auto;
+}
+
+/* Order Header */
+.merchant-order-header {
+  margin-bottom: 30px;
+  border-bottom: 2px solid var(--merchant-light);
+  padding-bottom: 20px;
+}
+
+.merchant-title-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
