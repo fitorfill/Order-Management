@@ -46,3 +46,31 @@ yarn-error.log*
 .vscode/
 *.swp
 *.swo
+
+# SQLite database files
+*.sqlite3
+*.sqlite3-journal
+
+# Migration files - uncomment if you want to ignore them
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# IDE specific files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Users app migrations
+users/migrations/*
+!users/migrations/__init__.py
+backend/sample_data.json
+backend/load_sample_data_simple.py
+backend/load_sample_data.py
+backend/create_users_app.py
+backend\API_ROUTES.md
+backend/create_migrations.py
+orders_project_setup.md
