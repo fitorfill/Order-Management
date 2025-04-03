@@ -5,7 +5,10 @@ import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import Navbar from './components/Layout/Navbar';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
+import { OrderProvider } from './context/OrderContext'; // Import OrderProvider
+import AddProductForm from './components/Management/AddProductForm';
+import AddCustomerForm from './components/Management/AddCustomerForm';
 import './styles/App.css';
 
 const App = () => {
@@ -15,19 +18,38 @@ const App = () => {
         <div className="app-container">
           <Navbar />
           <main className="main-content">
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+            {/* Wrap routes needing OrderContext with OrderProvider */}
+            <OrderProvider> 
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
               <Route 
                 path="/orders" 
                 element={
                   <ProtectedRoute>
                     <OrderDashboard />
                   </ProtectedRoute>
+                }
+              />
+               <Route 
+                path="/add-product" 
+                element={
+                  <ProtectedRoute>
+                    <AddProductForm />
+                  </ProtectedRoute>
                 } 
               />
-              <Route path="/" element={<Navigate to="/orders" replace />} />
-            </Routes>
+               <Route 
+                path="/add-customer" 
+                element={
+                  <ProtectedRoute>
+                    <AddCustomerForm />
+                  </ProtectedRoute>
+                } 
+                />
+                <Route path="/" element={<Navigate to="/orders" replace />} />
+              </Routes>
+            </OrderProvider>
           </main>
         </div>
       </Router>

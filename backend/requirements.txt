@@ -5,3 +5,6 @@ django-filter>=23.0
 markdown>=3.4.0
 drf-yasg>=1.21.0
 Pillow>=9.0.0
+pytest>=7.0.0  # Testing framework
+pytest-django>=4.0.0 # Pytest plugin for Django
+djangorestframework-simplejwt>=5.0.0 # JWT authentication

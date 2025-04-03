@@ -1,6 +1,10 @@
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework.authtoken.views import obtain_auth_token
+# from rest_framework.authtoken.views import obtain_auth_token # Replaced by simplejwt views
+from rest_framework_simplejwt.views import ( # Import simplejwt views
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
@@ -21,12 +25,11 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # Include the orders app URLs
-    path('api/', include('orders.urls')),
     # Include the users app URLs
     path('api/users/', include('users.urls')),
-    # Token authentication endpoint
-    path('api/token/', obtain_auth_token, name='api-token'),
+    # Simple JWT Token endpoints
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # API documentation with Swagger UI
     path('docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),

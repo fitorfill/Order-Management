@@ -24,10 +24,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework.authtoken',
+    # 'rest_framework.authtoken', # Replaced by simplejwt
+    'rest_framework_simplejwt', # Add simplejwt
     'corsheaders',
     'django_filters',
-    'orders',
     'users',  # Add the new users app
 ]
 
@@ -101,8 +101,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        # Use JWT authentication instead of TokenAuthentication
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication', # Keep session auth for browsable API/admin
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -117,3 +118,13 @@ REST_FRAMEWORK = {
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = True  # For development only
 CORS_ALLOW_CREDENTIALS = True
+
+# Simple JWT settings
+# Ensure the SIGNING_KEY matches JWT_SECRET in Node.js .env
+SIMPLE_JWT = {
+    'SIGNING_KEY': SECRET_KEY, # Use Django's secret key
+    'ALGORITHM': 'HS256',
+    # Add other settings like token lifetimes if needed
+    # 'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    # 'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}

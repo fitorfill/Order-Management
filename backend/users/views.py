@@ -1,8 +1,9 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
-from rest_framework.authtoken.views import ObtainAuthToken
+# from rest_framework.authtoken.models import Token # No longer needed
+# from rest_framework.authtoken.views import ObtainAuthToken # No longer needed
+from rest_framework_simplejwt.tokens import RefreshToken # Import RefreshToken
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
@@ -19,11 +20,13 @@ class RegisterView(APIView):
         
         if serializer.is_valid():
             user = serializer.save()
-            token, created = Token.objects.get_or_create(user=user)
+            # Generate JWT tokens
+            refresh = RefreshToken.for_user(user)
             
             response_data = {
                 'user': UserSerializer(user).data,
-                'token': token.key
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
             }
             
             return Response(response_data, status=status.HTTP_201_CREATED)
@@ -31,26 +34,9 @@ class RegisterView(APIView):
         print("Registration validation errors:", serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class LoginView(ObtainAuthToken):
-    """API view for user login."""
-    permission_classes = [permissions.AllowAny]
-    
-    def post(self, request, *args, **kwargs):
-        serializer = LoginSerializer(data=request.data)
-        
-        if serializer.is_valid():
-            username = serializer.validated_data['username']
-            password = serializer.validated_data['password']
-            
-            user = authenticate(username=username, password=password)
-            
-            if user:
-                token, created = Token.objects.get_or_create(user=user)
-                return Response({'token': token.key})
-            
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# The LoginView is no longer needed as Simple JWT provides /api/token/ endpoint
+# class LoginView(ObtainAuthToken):
+#     ... (Keep commented out or remove)
 
 class UserProfileView(APIView):
     """API view for retrieving user profile."""

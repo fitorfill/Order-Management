@@ -25,6 +25,8 @@ const Navbar = () => {
         {currentUser ? (
           <>
             <Link to="/orders" className="nav-link">Orders</Link>
+            <Link to="/add-product" className="nav-link">Add Product</Link>
+            <Link to="/add-customer" className="nav-link">Add Customer</Link>
             <button onClick={handleLogout} className="nav-link logout-button">
               Logout
             </button>

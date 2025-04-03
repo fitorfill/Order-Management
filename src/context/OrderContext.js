@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { createContext, useContext, useReducer, useEffect, useState, useCallback } from 'react';
+// Removed unused axios import
+import { axiosAuth } from './AuthContext'; // Import the authenticated axios instance
 
 // Order Context
 const OrderContext = createContext();
@@ -62,9 +63,10 @@ function orderReducer(state, action) {
       return { ...state, loading: false, error: action.payload };
     
     case actions.ADD_ORDER:
+      // Correctly add only the order object, not the whole response
       return { 
         ...state, 
-        orders: [...state.orders, action.payload],
+        orders: [...state.orders, action.payload.order], 
       };
     
     case actions.UPDATE_ORDER: {
@@ -135,21 +137,17 @@ export const OrderProvider = ({ children }) => {
   
   const [filteredSortedOrders, setFilteredSortedOrders] = useState([]);
   
-  const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+  // Removed unused API_URL variable
+  const ORDER_SERVICE_URL = process.env.REACT_APP_ORDER_SERVICE_URL || 'http://localhost:3001'; // For Node.js Order Service
   
-  // Get the token for authenticated requests
-  const getAuthHeader = () => {
-    const token = localStorage.getItem('token');
-    return token ? { Authorization: `Token ${token}` } : {};
-  };
-  
-  // Fetch orders
-  const fetchOrders = async () => {
+  // Fetch orders (from Node.js service) - Memoized with useCallback
+  const fetchOrders = useCallback(async () => { 
     dispatch({ type: actions.FETCH_ORDERS_START });
     
     try {
-      const response = await axios.get(`${API_URL}/api/orders/`, {
-        headers: getAuthHeader()
+      // Use axiosAuth instance for requests needing authentication/refresh
+      const response = await axiosAuth.get(`${ORDER_SERVICE_URL}/api/orders`, { 
+        // No need to manually set headers here, interceptor handles it
       });
       
       dispatch({ 
@@ -158,21 +156,20 @@ export const OrderProvider = ({ children }) => {
       });
     } catch (error) {
       console.error('Error fetching orders:', error);
+      // Use the Node service error structure if available
       dispatch({ 
         type: actions.FETCH_ORDERS_ERROR,
-        payload: error.response?.data?.detail || 'Failed to fetch orders' 
+        payload: error.response?.data?.message || 'Failed to fetch orders' 
       });
     }
-  };
+  }, [ORDER_SERVICE_URL]); // Dependency: URL might change if based on env vars
   
-  // Add a new order
-  const addOrder = async (orderData) => {
+  // Add a new order (to Node.js service)
+  const addOrder = async (orderData) => { // Not typically needed in useEffect deps, but keep async
     try {
-      const response = await axios.post(`${API_URL}/api/orders/`, orderData, {
-        headers: {
-          ...getAuthHeader(),
-          'Content-Type': 'application/json'
-        }
+      // Use axiosAuth instance
+      const response = await axiosAuth.post(`${ORDER_SERVICE_URL}/api/orders`, orderData, {
+         // Headers are handled by interceptor/defaults
       });
       
       dispatch({
@@ -187,14 +184,14 @@ export const OrderProvider = ({ children }) => {
     }
   };
   
-  // Update an order
+  // Update an order (in Node.js service - Note: Endpoint not implemented yet in controller)
   const updateOrder = async (orderId, orderData) => {
+    // TODO: Implement PUT/PATCH endpoint in Node.js controller if needed
+    console.warn("updateOrder called, but Node.js endpoint might not be implemented yet.");
     try {
-      const response = await axios.patch(`${API_URL}/api/orders/${orderId}/`, orderData, {
-        headers: {
-          ...getAuthHeader(),
-          'Content-Type': 'application/json'
-        }
+      // Use axiosAuth instance
+      const response = await axiosAuth.patch(`${ORDER_SERVICE_URL}/api/orders/${orderId}`, orderData, {
+         // Headers are handled by interceptor/defaults
       });
       
       dispatch({
@@ -209,11 +206,14 @@ export const OrderProvider = ({ children }) => {
     }
   };
   
-  // Delete an order
+  // Delete an order (in Node.js service - Note: Endpoint not implemented yet in controller)
   const deleteOrder = async (orderId) => {
+    // TODO: Implement DELETE endpoint in Node.js controller if needed
+    console.warn("deleteOrder called, but Node.js endpoint might not be implemented yet.");
     try {
-      await axios.delete(`${API_URL}/api/orders/${orderId}/`, {
-        headers: getAuthHeader()
+       // Use axiosAuth instance
+      await axiosAuth.delete(`${ORDER_SERVICE_URL}/api/orders/${orderId}`, {
+         // Headers are handled by interceptor/defaults
       });
       
       dispatch({
@@ -244,13 +244,14 @@ export const OrderProvider = ({ children }) => {
     });
   };
   
-  // Fetch customers
-  const fetchCustomers = async () => {
+  // Fetch customers - Memoized with useCallback
+  const fetchCustomers = useCallback(async () => { // Use useCallback directly
     dispatch({ type: actions.FETCH_CUSTOMERS_START });
     
     try {
-      const response = await axios.get(`${API_URL}/api/customers/`, {
-        headers: getAuthHeader()
+      // Use axiosAuth instance
+      const response = await axiosAuth.get(`${ORDER_SERVICE_URL}/api/customers`, { 
+         // Headers are handled by interceptor/defaults
       });
       
       dispatch({ 
@@ -261,18 +262,19 @@ export const OrderProvider = ({ children }) => {
       console.error('Error fetching customers:', error);
       dispatch({ 
         type: actions.FETCH_CUSTOMERS_ERROR,
-        payload: error.response?.data?.detail || 'Failed to fetch customers' 
+        payload: error.response?.data?.message || 'Failed to fetch customers' // Use Node.js error format
       });
     }
-  };
+  }, [ORDER_SERVICE_URL]); // Dependency: Node service URL
   
-  // Fetch products
-  const fetchProducts = async () => {
+  // Fetch products - Memoized with useCallback
+  const fetchProducts = useCallback(async () => { // Use useCallback directly
     dispatch({ type: actions.FETCH_PRODUCTS_START });
     
     try {
-      const response = await axios.get(`${API_URL}/api/products/`, {
-        headers: getAuthHeader()
+       // Use axiosAuth instance
+      const response = await axiosAuth.get(`${ORDER_SERVICE_URL}/api/products`, { 
+         // Headers are handled by interceptor/defaults
       });
       
       dispatch({ 
@@ -283,18 +285,21 @@ export const OrderProvider = ({ children }) => {
       console.error('Error fetching products:', error);
       dispatch({ 
         type: actions.FETCH_PRODUCTS_ERROR,
-        payload: error.response?.data?.detail || 'Failed to fetch products' 
+        payload: error.response?.data?.message || 'Failed to fetch products' // Use Node.js error format
       });
     }
-  };
+  }, [ORDER_SERVICE_URL]); // Dependency: Node service URL
   
-  // Fetch metrics
-  const fetchMetrics = async () => {
+  // Fetch metrics (This endpoint likely doesn't exist in the new Node service yet) - Memoized with useCallback
+  const fetchMetrics = useCallback(async () => { // Use useCallback directly
+    // TODO: Implement metrics endpoint in Node.js service if needed
+    console.warn("fetchMetrics called, but Node.js endpoint /api/orders/metrics likely doesn't exist.");
     setState(prev => ({ ...prev, metricsLoading: true }));
     
     try {
-      const response = await axios.get(`${API_URL}/api/orders/metrics/`, {
-        headers: getAuthHeader()
+      // Use axiosAuth instance
+      const response = await axiosAuth.get(`${ORDER_SERVICE_URL}/api/orders/metrics`, {
+         // Headers are handled by interceptor/defaults
       });
       
       setState(prev => ({ 
@@ -309,7 +314,7 @@ export const OrderProvider = ({ children }) => {
         metricsLoading: false 
       }));
     }
-  };
+  }, [ORDER_SERVICE_URL]); // Dependency: Node service URL
   
   // Use a separate state for metrics since it's not part of the reducer
   const [extraState, setState] = useState({
@@ -381,7 +386,7 @@ export const OrderProvider = ({ children }) => {
     fetchCustomers();
     fetchProducts();
     fetchMetrics();
-  }, []);
+  }, [fetchOrders, fetchCustomers, fetchProducts, fetchMetrics]); // Add memoized functions to dependency array
   
   const contextValue = {
     ...state,
@@ -395,8 +400,46 @@ export const OrderProvider = ({ children }) => {
     fetchOrders,
     fetchCustomers,
     fetchProducts,
-    fetchMetrics
+    fetchMetrics,
+    addProduct, // Add the new functions to the context value
+    addCustomer
   };
+
+  // --- Add Product Function ---
+  async function addProduct(productData) {
+    // Consider adding loading/error state specific to product adding if needed
+    try {
+      // Use axiosAuth instance
+      const response = await axiosAuth.post(`${ORDER_SERVICE_URL}/api/products`, productData, {
+         // Headers are handled by interceptor/defaults
+      });
+      // Optionally re-fetch products after adding
+      fetchProducts();
+      return response.data; // Return the newly created product
+    } catch (error) {
+      console.error('Error adding product:', error);
+      // Rethrow or handle error appropriately for the UI
+      throw error.response?.data || error;
+    }
+  }
+
+  // --- Add Customer Function ---
+  async function addCustomer(customerData) {
+     // Consider adding loading/error state specific to customer adding if needed
+    try {
+       // Use axiosAuth instance
+      const response = await axiosAuth.post(`${ORDER_SERVICE_URL}/api/customers`, customerData, {
+         // Headers are handled by interceptor/defaults
+      });
+      // Optionally re-fetch customers after adding
+      fetchCustomers();
+      return response.data; // Return the newly created customer
+    } catch (error) {
+      console.error('Error adding customer:', error);
+      // Rethrow or handle error appropriately for the UI
+      throw error.response?.data || error;
+    }
+  }
   
   return (
     <OrderContext.Provider value={contextValue}>
